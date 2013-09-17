@@ -29,7 +29,7 @@
 
     bindEvents: function() {
       this.on("destroy", this.onDestroy);
-      this.listenTo(this.model, "change", this.onChangeModel)
+      this.listenTo(this.model, "change", this.onChangeModel);
       return this;
     },
 
@@ -62,7 +62,7 @@
       this
         .checkForModel()
         .createProxyModel()
-        .initializeRivetsView()
+        .initializeRivetsView();
       return this;
     },
 
