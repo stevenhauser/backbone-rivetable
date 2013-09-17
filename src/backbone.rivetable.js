@@ -44,9 +44,9 @@
       this.model = null;
     },
 
-    onChangeModel: function(model, opts) {
+    onChangeModel: _.debounce(function(model, opts) {
       this.copyModelAttrs();
-    }
+    }, 10)
 
   });
 
