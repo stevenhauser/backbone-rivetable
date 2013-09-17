@@ -4,11 +4,19 @@
 </head>
 <body>
 
-  <div id="template">
-    <h1 data-rv-text=":fullName < .firstName .lastName"></h1>
-    <h2 data-rv-text=".title"></h2>
-    <p data-rv-text=".description"></p>
-  </div>
+  <div id="playground"></div>
+
+  <template id="template">
+    <div class="person"
+      data-rv-class-is-man=":isMan < .firstName"
+      data-rv-class-is-woman=":isWoman < .firstName"
+    >
+      <h1 data-rv-text=":fullName < .firstName .lastName"></h1>
+      <h2 data-rv-text=".title"></h2>
+      <p data-rv-text=".description"></p>
+      <button data-rv-disabled=".isFirst">A button</button>
+    </div>
+  </template>
 
   <script src="../vendor/jquery.js"></script>
   <script src="../vendor/underscore.js"></script>
