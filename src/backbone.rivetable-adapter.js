@@ -5,14 +5,16 @@
 
   rivets.configure({
 
+    prefix: "rv",
+
     adapter: {
 
       subscribe: function(obj, keypath, callback) {
-        this.listenTo(obj, "change:" + keypath, callback);
+        obj.on("change:" + keypath, callback);
       },
 
       unsubscribe: function(obj, keypath, callback) {
-        this.stopListening(obj, "change:" + keypath, callback);
+        obj.off("change:" + keypath, callback);
       },
 
       read: function(obj, keypath) {
