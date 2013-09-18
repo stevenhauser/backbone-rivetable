@@ -7,12 +7,21 @@
         initialize: function() {
           this.listenTo(this.model.collection, "remove", this.onCollectionChange);
           this.listenTo(this.model.collection, "add", this.onCollectionChange);
-          this.updatePosition();
+          this.updatePosition().updateClasses();
         },
 
         updatePosition: function() {
           this.set("isFirst", this.isFirst());
           return this;
+        },
+
+        updateClasses: function() {
+          var classes = "red green blue".split(" "),
+              self = this;
+          this.set("class", classes[_.random(0, classes.length - 1)]);
+          setTimeout(function() {
+            self.updateClasses();
+          }, _.random(750, 3000));
         },
 
         isFirst: function() {
@@ -22,10 +31,6 @@
         fullName: function() {
           return [this.get("firstName"), this.get("lastName")].join(" ");
         },
-
-        isMan: function() { return this.get("firstName") === "annyong"; },
-
-        isWoman: function() { return this.get("firstName") === "lindsay"; },
 
         onCollectionChange: function() {
           this.updatePosition();

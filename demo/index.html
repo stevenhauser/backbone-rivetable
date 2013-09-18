@@ -1,16 +1,18 @@
 <html>
 <head>
   <title>backbone.rivetable</title>
+  <style>
+    .red   { color: #900; }
+    .green { color: #090; }
+    .blue  { color: #009; }
+  </style>
 </head>
 <body>
 
   <div id="playground"></div>
 
   <template id="template">
-    <div class="person"
-      data-rv-class-is-man=":isMan < .firstName"
-      data-rv-class-is-woman=":isWoman < .firstName"
-    >
+    <div class="person" data-rv-class=".class">
       <h1 data-rv-text=":fullName < .firstName .lastName"></h1>
       <h2 data-rv-text=".title"></h2>
       <p data-rv-text=".description"></p>
