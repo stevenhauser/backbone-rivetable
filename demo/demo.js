@@ -5,16 +5,22 @@
       ProxyModel = Backbone.RivetableProxyModel.extend({
 
         initialize: function() {
-          this.listenTo(this.model.collection, "destroy", this.onCollectionChange);
+          this.listenTo(this.model.collection, "remove", this.onCollectionChange);
           this.listenTo(this.model.collection, "add", this.onCollectionChange);
+          this.updatePosition();
         },
 
-        fullName: function() {
-          return [this.get("firstName"), this.get("lastName")].join(" ");
+        updatePosition: function() {
+          this.set("isFirst", this.isFirst());
+          return this;
         },
 
         isFirst: function() {
           return this.model.collection.first() === this.model;
+        },
+
+        fullName: function() {
+          return [this.get("firstName"), this.get("lastName")].join(" ");
         },
 
         isMan: function() { return this.get("firstName") === "annyong"; },
@@ -22,8 +28,7 @@
         isWoman: function() { return this.get("firstName") === "lindsay"; },
 
         onCollectionChange: function() {
-          this.set("isFirst", this.isFirst());
-          console.log( this.toJSON() );
+          this.updatePosition();
         }
 
       });
@@ -55,17 +60,16 @@
     el: document.querySelector("#template").content.cloneNode(true)
   });
 
-  // @TODO: This breaks bindings, unsure why
-  // window.otherView = new RegularView({
-  //   model: window.model,
-  //   el: document.querySelector("#template").content.cloneNode(true)
-  // });
+  window.otherView = new RegularView({
+    model: window.model,
+    el: document.querySelector("#template").content.cloneNode(true)
+  });
 
   console.log( window.view );
   console.log( window.model );
 
   var playground = document.querySelector("#playground")
   playground.appendChild(window.view.el);
-  // playground.appendChild(window.otherView.el);
+  playground.appendChild(window.otherView.el);
 
 }());
