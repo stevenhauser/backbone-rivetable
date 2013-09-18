@@ -5,8 +5,7 @@
   var errorPfx = "Backbone.rivetable: ",
 
       errors = {
-        noModel: "View must have `this.model` set when calling `rivetable`",
-        noProxy: "View must have `this.rivetableModel` set when calling `rivetable`"
+        noModel: "View must have `this.model` set when calling `rivetable`"
       },
 
       throwError = function(errorKey) {
@@ -89,7 +88,7 @@
 
   var rivetable = {
 
-    rivetableModel: ProxyModel,
+    defaultRivetableModel: ProxyModel,
 
     rivetable: function() {
       this
@@ -105,8 +104,8 @@
     },
 
     createProxyModel: function() {
-      if (!this.rivetableModel) { throwError("noProxy"); }
-      this.proxyModel = new this.rivetableModel(null, { view: this });
+      var proxyConsructor = this.rivetableModel || this.defaultRivetableModel;
+      this.proxyModel = new proxyConsructor(null, { view: this });
       return this;
     },
 

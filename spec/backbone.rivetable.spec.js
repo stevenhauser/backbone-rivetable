@@ -139,18 +139,17 @@ describe("backbone.rivetable", function() {
         view = createRivetableView();
       });
 
-      it("throws an error if no rivetableModel is defined", function() {
-        _.bind(view.createProxyModel, view);
-        view.rivetableModel = null;
-        expect(view.createProxyModel).toThrow();
-      });
-
       it("creates a proxy model", function() {
         expect(view.proxyModel).toBeDefined();
       });
 
       it("uses the desired proxy model constructor", function() {
-        expect(view.proxyModel instanceof view.rivetableModel).toBe(true);
+        var CustomProxy = Backbone.RivetableProxyModel.extend(),
+            View = Backbone.RivetableView.extend({
+              rivetableModel: CustomProxy
+            }),
+            view = new View({ model: new Backbone.Model() });
+        expect(view.proxyModel instanceof CustomProxy).toBe(true);
       });
 
     });
