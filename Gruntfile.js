@@ -7,7 +7,8 @@ module.exports = function(grunt) {
     jshint: {
       files: ["Gruntfile.js", "src/**/*.js", "spec/**/*.js"],
       options: {
-        expr: true
+        expr: true,
+        eqnull: true
       }
     },
 
