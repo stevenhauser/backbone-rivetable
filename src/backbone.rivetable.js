@@ -54,6 +54,7 @@
     constructor: function(attrs, opts) {
       this.view = opts.view;
       this.model = this.view.model;
+      _.bind(this.onChangeModel, this);
       this.bindEvents();
       Backbone.Model.apply(this, arguments);
       return this;
@@ -61,7 +62,7 @@
 
     bindEvents: function() {
       this.on("destroy", this.onDestroy);
-      this.listenTo(this.model, "change", this.onChangeModel);
+      this.listenTo(this.model, "change", _.debounce(this.onChangeModel, 10));
       return this;
     },
 
@@ -76,9 +77,9 @@
       this.model = null;
     },
 
-    onChangeModel: _.debounce(function(model, opts) {
+    onChangeModel: function(model, opts) {
       this.copyModelAttrs();
-    }, 10)
+    }
 
   });
 
