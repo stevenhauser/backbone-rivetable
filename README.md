@@ -1,6 +1,8 @@
 # backbone.rivetable
 
-Implements live data-binding between Backbone models and views via [Rivets.js](1)
+Implements live data-binding between Backbone models and views via [Rivets.js][1].
+
+**Note that this project is still in its early stages and is very much a work in progress.**
 
 ## How it works
 
