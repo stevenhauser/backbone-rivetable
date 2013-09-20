@@ -51,12 +51,16 @@
 
     rivetableModel: ContactViewProxy,
 
+    events: {
+      "click .btn-danger": "onClickDelete"
+    },
+
     template: function() {
       return getTemplate("#contact-item");
     },
 
     render: function() {
-      this.$el.html(this.template());
+      this.$el.html(this.template()).attr("data-cid", this.model.cid);
       this.rivetable();
       return this;
     },
@@ -65,6 +69,11 @@
       // @TODO: This probably makes sense to call in rivetable itself.
       this.unrivetable();
       return Backbone.RivetableView.prototype.remove.apply(this, arguments);
+    },
+
+    onClickDelete: function(e) {
+      e.preventDefault();
+      this.model.destroy();
     }
 
   });
@@ -74,6 +83,25 @@
   /* Contacts manager view ---------------------------------------- */
 
   var ContactsManagerView = Backbone.View.extend({
+
+    el: "#contacts-manager",
+
+    events: {
+      "click .btn-success": "onClickAdd"
+    },
+
+    onClickAdd: function(e) {
+      e.preventDefault();
+      this.collection.add({});
+    }
+
+  });
+
+
+
+  /* Contacts manager list view ---------------------------------------- */
+
+  var ContactsManagerListView = Backbone.View.extend({
 
     el: "#contacts-list",
 
@@ -141,9 +169,10 @@
         { firstName: "Maggie", lastName: "Simpson", isFavorite: false }
       ],
       collection = new ContactsCollection(sampleData),
-      contactsView = new ContactsManagerView({ collection: collection });
+      contactsView = new ContactsManagerView({ collection: collection }),
+      contactsListView = new ContactsManagerListView({ collection: collection });
 
   window.collection = collection;
-  window.contactsView = contactsView;
+  window.contactsListView = contactsListView;
 
 }(jQuery, Backbone, _));
