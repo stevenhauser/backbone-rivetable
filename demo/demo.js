@@ -1,80 +1,149 @@
-(function() {
+(function($, Backbone, _) {
 
-  var Model = Backbone.Model.extend({}),
+  /* Helpers ---------------------------------------- */
 
-      ProxyModel = Backbone.RivetableProxyModel.extend({
+  function getTemplate(selector) {
+    return $(selector)[0].content.cloneNode(true);
+  }
 
-        initialize: function() {
-          this.listenTo(this.model.collection, "remove", this.onCollectionChange);
-          this.listenTo(this.model.collection, "add", this.onCollectionChange);
-          this.updatePosition().updateClasses();
-        },
 
-        updatePosition: function() {
-          this.set("isFirst", this.isFirst());
-          return this;
-        },
+  /* Contact model ---------------------------------------- */
 
-        updateClasses: function() {
-          var classes = "red green blue".split(" "),
-              self = this;
-          this.set("class", classes[_.random(0, classes.length - 1)]);
-          setTimeout(function() {
-            self.updateClasses();
-          }, _.random(750, 3000));
-        },
+  var ContactModel = Backbone.Model.extend({
 
-        isFirst: function() {
-          return this.model.collection.first() === this.model;
-        },
+    defaults: {
+      firstName: "Contact",
+      lastName: "Name",
+      isFavorite: false
+    }
 
-        fullName: function() {
-          return [this.get("firstName"), this.get("lastName")].join(" ");
-        },
-
-        onCollectionChange: function() {
-          this.updatePosition();
-        }
-
-      });
-
-      RivetableView = Backbone.RivetableView.extend({
-        rivetableModel: ProxyModel
-      }),
-
-      RegularView = Backbone.View.extend({
-        rivetableModel: ProxyModel,
-        initialize: function() {
-          this.rivetable();
-        }
-      });
-
-  _.extend(RegularView.prototype, Backbone.rivetable);
-
-  window.model = new Model({
-    firstName: "Annyong",
-    lastName: "Bluth",
-    title: "adopted child",
-    description: "saboteur"
   });
 
-  window.collection = new Backbone.Collection([window.model, {}])
 
-  window.view = new RivetableView({
-    model: window.model,
-    el: document.querySelector("#template").content.cloneNode(true)
+
+  /* Contacts collection ---------------------------------------- */
+
+  var ContactsCollection = Backbone.Collection.extend({
+
+    model: ContactModel
+
   });
 
-  window.otherView = new RegularView({
-    model: window.model,
-    el: document.querySelector("#template").content.cloneNode(true)
+
+
+  /* Contact view ---------------------------------------- */
+
+  var ContactViewProxy = Backbone.RivetableProxyModel.extend({
+
+    fullName: function() {
+      var firstName = this.model.get("firstName"),
+          lastName  = this.model.get("lastName")
+      return [firstName, lastName].join(" ").trim();
+    }
+
   });
 
-  console.log( window.view );
-  console.log( window.model );
+  var ContactView = Backbone.RivetableView.extend({
 
-  var playground = document.querySelector("#playground")
-  playground.appendChild(window.view.el);
-  playground.appendChild(window.otherView.el);
+    tagName: "li",
 
-}());
+    className: "contact",
+
+    rivetableModel: ContactViewProxy,
+
+    template: function() {
+      return getTemplate("#contact-item");
+    },
+
+    render: function() {
+      this.$el.html(this.template());
+      this.rivetable();
+      return this;
+    },
+
+    remove: function() {
+      // @TODO: This probably makes sense to call in rivetable itself.
+      this.unrivetable();
+      return Backbone.RivetableView.prototype.remove.apply(this, arguments);
+    }
+
+  });
+
+
+
+  /* Contacts manager view ---------------------------------------- */
+
+  var ContactsManagerView = Backbone.View.extend({
+
+    el: "#contacts-list",
+
+    itemView: ContactView,
+
+    boundMethods: [
+      "addChildView",
+      "removeChildView"
+    ],
+
+    initialize: function() {
+      this.childViews = {};
+      this.bindMethods();
+      this.listenTo(this.collection, "add", this.onAdd);
+      this.listenTo(this.collection, "remove", this.onRemove);
+      this.createChildViews();
+      return this;
+    },
+
+    bindMethods: function() {
+      var args = _.clone(this.boundMethods);
+      args.unshift(this);
+      _.bindAll.apply(_, args);
+      return this;
+    },
+
+    createChildViews: function() {
+      this.collection.each(this.addChildView);
+      return this;
+    },
+
+    addChildView: function(model) {
+      var childView = new this.itemView({ model: model });
+      this.childViews[model.cid] = childView;
+      this.$el.append(childView.render().el);
+      return this;
+    },
+
+    removeChildView: function(model) {
+      var childView = this.childViews[model.cid];
+      this.childViews[model.cid] = null;
+      childView.remove();
+      return this;
+    },
+
+    onAdd: function(model) {
+      this.addChildView(model);
+    },
+
+    onRemove: function(model) {
+      this.removeChildView(model);
+    }
+
+  });
+
+
+
+  /* Initialization ---------------------------------------- */
+
+  var sampleData = [
+        { firstName: "Homer",  lastName: "Simpson", isFavorite: true },
+        { firstName: "Marge",  lastName: "Simpson", isFavorite: false },
+        { firstName: "Bart",   lastName: "Simpson", isFavorite: false },
+        { firstName: "Lisa",   lastName: "Simpson", isFavorite: false },
+        { firstName: "Maggie", lastName: "Simpson", isFavorite: false }
+      ],
+      collection = new ContactsCollection(sampleData),
+      contactsView = new ContactsManagerView({ collection: collection });
+
+  window.collection = collection;
+  window.contactsView = contactsView;
+
+}(jQuery, Backbone, _));
