@@ -1,31 +1,49 @@
 <html>
 <head>
-  <title>backbone.rivetable</title>
-  <style>
-    .red   { color: #900; }
-    .green { color: #090; }
-    .blue  { color: #009; }
-  </style>
+  <title>backbone.rivetable contact manager demo</title>
+  <link rel="stylesheet" href="main.css" />
 </head>
 <body>
 
-  <div id="playground"></div>
+  <div class="contacts-wrap">
 
-  <template id="template">
-    <div class="person" data-rv-class=".class">
-      <h1 data-rv-text=":fullName < .firstName .lastName"></h1>
-      <h2 data-rv-text=".title"></h2>
-      <p data-rv-text=".description"></p>
-      <button data-rv-disabled=".isFirst">A button</button>
+    <div class="contacts-manager">
+      <ul class="contacts-list">
+        <li class="contact">
+          <p class="contact-name">Contact name</p>
+          <i data-rv-class-active=".isFavorite" class="icon-favorite">&#9733;</i>
+          <button class="btn btn-sm btn-danger">Delete</button>
+        </li>
+        <li class="contact active">
+          <p class="contact-name">Contact name</p>
+          <i data-rv-class-active=".isFavorite" class="icon-favorite active">&#9733;</i>
+          <button class="btn btn-sm btn-danger">Delete</button>
+        </li>
+        <li class="contact">
+          <p class="contact-name">Contact name</p>
+          <i data-rv-class-active=".isFavorite" class="icon-favorite">&#9733;</i>
+          <button class="btn btn-sm btn-danger">Delete</button>
+        </li>
+      </ul>
+      <button class="btn btn-success">Add Contact</button>
     </div>
-  </template>
+
+    <div class="contact-manager" id="contact-manager">
+      <input type="text" class="contact-name" value="Contact name" />
+      <button class="btn">
+        <i data-rv-class-active=".isFavorite" class="icon-favorite active">&#9733;</i>
+        Favorite
+      </button>
+      <button class="btn btn-danger">Delete</button>
+    </div>
+
+  </div>
 
   <script src="../vendor/jquery.js"></script>
   <script src="../vendor/underscore.js"></script>
   <script src="../vendor/backbone.js"></script>
   <script src="../vendor/rivets.js"></script>
   <script src="../src/backbone.rivetable.js"></script>
-  <script src="demo.js"></script>
 
 </body>
 </html>
