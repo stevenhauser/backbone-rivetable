@@ -109,6 +109,7 @@
 
     rivetable: function() {
       this
+        .unrivetable()
         .checkForModel()
         .createProxyModel()
         .initializeRivetsView();
@@ -132,14 +133,20 @@
       return this;
     },
 
+    // Cleans up references and event handlers. Checks for existence
+    // of instance variables because this method is called in `rivetable`
+    // in case stuff needs to be cleaned up because the view is already
+    // rivetable and just needs to be rerivetableized.
     unrivetable: function() {
-      // Destroy and clean up references to proxy model
-      this.proxyModel.destroy();
-      this.stopListening(this.proxyModel);
-      this.proxyModel = null;
-      // Destroy and clean up references to rivets view
-      this.rivetsView.unbind();
-      this.rivetsView = null;
+      if (this.proxyModel) {
+        this.proxyModel.destroy();
+        this.stopListening(this.proxyModel);
+        this.proxyModel = null;
+      }
+      if (this.rivetsView) {
+        this.rivetsView.unbind();
+        this.rivetsView = null;
+      }
       return this;
     }
 

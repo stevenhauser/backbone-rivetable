@@ -178,6 +178,13 @@ describe("backbone.rivetable", function() {
         expect(Backbone.RivetableView.prototype.initializeRivetsView).toHaveBeenCalled();
       });
 
+      it("calls unrivetable when rivetable is called", function() {
+        var view = createRivetableView();
+        spyOn(Backbone.RivetableView.prototype, "unrivetable").andCallThrough();
+        view.rivetable();
+        expect(Backbone.RivetableView.prototype.unrivetable).toHaveBeenCalled();
+      });
+
     });
 
     describe("checking for a model", function() {
