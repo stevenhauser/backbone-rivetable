@@ -193,7 +193,7 @@
     },
 
     onRemove: function(model) {
-      this.removeChildView(model);
+      this.removeChildView(model).activate(this.collection.first().cid);
     },
 
     onClickContact: function(e) {
@@ -215,7 +215,8 @@
     rivetableModel: ContactViewProxy,
 
     events: {
-      "click .favorite-btn": "onClickFavorite"
+      "click .favorite-btn": "onClickFavorite",
+      "click .btn-danger": "onClickDelete"
     },
 
     initialize: function() {
@@ -241,6 +242,10 @@
 
     onClickFavorite: function() {
       this.toggleFavorite();
+    },
+
+    onClickDelete: function() {
+      this.model.destroy();
     }
 
   });
