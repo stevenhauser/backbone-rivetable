@@ -189,7 +189,7 @@
     },
 
     onAdd: function(model) {
-      this.addChildView(model);
+      this.addChildView(model).activate(model.cid);
     },
 
     onRemove: function(model) {
