@@ -7,6 +7,46 @@
   }
 
 
+
+  /* Backbone.View overrides ---------------------------------------- */
+
+  _.extend(Backbone.View.prototype, {
+
+    getTemplate: function() {
+      return getTemplate(this.template);
+    },
+
+    render: function() {
+      this.$el
+        .html(this.getTemplate())
+        .attr("data-model-cid", this.model.cid)
+        .attr("data-view-cid", this.cid);
+      this.rivetable();
+      return this;
+    },
+
+    remove: (function() {
+
+      var origRemove = Backbone.View.prototype.remove;
+
+      return function() {
+        // @TODO: This probably makes sense to call in rivetable itself.
+        this.unrivetable();
+        return origRemove.apply(this, arguments);
+      };
+
+    }())
+
+  });
+
+
+
+  /* App vent ---------------------------------------- */
+
+  var vent = _.extend({}, Backbone.Events);
+
+
+
   /* Contact model ---------------------------------------- */
 
   var ContactModel = Backbone.Model.extend({
@@ -49,30 +89,18 @@
 
     className: "contact",
 
+    template: "#contact-item-template",
+
     rivetableModel: ContactViewProxy,
 
     events: {
       "click .btn-danger": "onClickDelete"
     },
 
-    template: function() {
-      return getTemplate("#contact-item");
-    },
-
-    render: function() {
-      this.$el.html(this.template()).attr("data-cid", this.model.cid);
-      this.rivetable();
-      return this;
-    },
-
-    remove: function() {
-      // @TODO: This probably makes sense to call in rivetable itself.
-      this.unrivetable();
-      return Backbone.RivetableView.prototype.remove.apply(this, arguments);
-    },
-
     onClickDelete: function(e) {
       e.preventDefault();
+      // Avoid list view click handler
+      e.stopPropagation();
       this.model.destroy();
     }
 
@@ -112,12 +140,16 @@
       "removeChildView"
     ],
 
+    events: {
+      "click .contact": "onClickContact"
+    },
+
     initialize: function() {
       this.childViews = {};
       this.bindMethods();
       this.listenTo(this.collection, "add", this.onAdd);
       this.listenTo(this.collection, "remove", this.onRemove);
-      this.createChildViews();
+      this.createChildViews().activate(this.collection.first().cid);
       return this;
     },
 
@@ -147,12 +179,68 @@
       return this;
     },
 
+    activate: function(modelCid) {
+      var model = this.collection.get(modelCid);
+      this.$(".contact").removeClass("active")
+        .filter("[data-model-cid='" + modelCid + "']")
+        .addClass("active");
+      vent.trigger("contact:selected", model);
+      return this;
+    },
+
     onAdd: function(model) {
       this.addChildView(model);
     },
 
     onRemove: function(model) {
       this.removeChildView(model);
+    },
+
+    onClickContact: function(e) {
+      this.activate(e.currentTarget.dataset.modelCid);
+    }
+
+  });
+
+
+
+  /* Contact manager view ---------------------------------------- */
+
+  var ContactManagerView = Backbone.RivetableView.extend({
+
+    el: "#contact-manager",
+
+    template: "#contact-manager-template",
+
+    rivetableModel: ContactViewProxy,
+
+    events: {
+      "click .favorite-btn": "onClickFavorite"
+    },
+
+    initialize: function() {
+      this.render();
+      this.listenTo(vent, "contact:selected", this.onContactSelected);
+      return this;
+    },
+
+    changeModel: function(contact) {
+      this.model = contact;
+      this.render();
+      return this;
+    },
+
+    toggleFavorite: function() {
+      this.model.set("isFavorite", !this.model.get("isFavorite"));
+      return this;
+    },
+
+    onContactSelected: function (contact) {
+      this.changeModel(contact);
+    },
+
+    onClickFavorite: function() {
+      this.toggleFavorite();
     }
 
   });
@@ -170,7 +258,8 @@
       ],
       collection = new ContactsCollection(sampleData),
       contactsView = new ContactsManagerView({ collection: collection }),
-      contactsListView = new ContactsManagerListView({ collection: collection });
+      contactsListView = new ContactsManagerListView({ collection: collection }),
+      contactManagerView = new ContactManagerView({ model: collection.first() });
 
   window.collection = collection;
   window.contactsListView = contactsListView;
