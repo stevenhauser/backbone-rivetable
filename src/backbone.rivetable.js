@@ -51,6 +51,8 @@
 
   var ProxyModel = Backbone.Model.extend({
 
+    bidirectional: true,
+
     constructor: function(attrs, opts) {
       this.view = opts.view;
       this.model = this.view.model;
@@ -63,11 +65,19 @@
     bindEvents: function() {
       this.on("destroy", this.onDestroy);
       this.listenTo(this.model, "change", _.debounce(this.onChangeModel, 10));
+      this.listenTo(this, "change", _.debounce(this.onChange, 10));
       return this;
     },
 
     copyModelAttrs: function() {
       this.set(_.clone(this.model.attributes));
+      return this;
+    },
+
+    copyAttrsToModel: function() {
+      var validAttrs = this.model.keys(),
+          attrs = this.pick(validAttrs);
+      this.model.set(attrs);
       return this;
     },
 
@@ -79,6 +89,12 @@
 
     onChangeModel: function(model, opts) {
       this.copyModelAttrs();
+    },
+
+    onChange: function() {
+      if (this.bidirectional) {
+        this.copyAttrsToModel();
+      }
     }
 
   });

@@ -63,6 +63,68 @@ describe("backbone.rivetable", function() {
 
     });
 
+    describe("bidirectionality", function() {
+
+      function setProxyModelValueAndWait(key, val, callback) {
+        var shouldHaveCopied = false;
+        runs(function() {
+          proxyModel.set(key, val);
+          setTimeout(function() { shouldHaveCopied = true; }, 20);
+        });
+        waitsFor(function() {
+          return shouldHaveCopied;
+        });
+        runs(callback);
+      }
+
+      beforeEach(function() {
+        spyOn(proxyModel, "copyAttrsToModel").andCallThrough();
+      });
+
+      it("is bidirectional by default", function() {
+        expect(proxyModel.bidirectional).toBe(true);
+      });
+
+      describe("when bidirectional", function() {
+
+        beforeEach(function() {
+          proxyModel.bidirectional = true;
+        });
+
+        it("updates its model", function() {
+          setProxyModelValueAndWait("a", "a new value", function() {
+            expect(proxyModel.copyAttrsToModel).toHaveBeenCalled();
+            expect(model.get("a")).toBe("a new value");
+          });
+        });
+
+        it("doesn't update attributes its model doesn't have", function() {
+          setProxyModelValueAndWait("z", "a new value", function() {
+            expect(model.get("z")).toBeUndefined();
+          });
+        });
+
+      });
+
+      describe("when not bidirectional", function() {
+
+        beforeEach(function() {
+          proxyModel.bidirectional = false;
+        });
+
+        it("doesn't update its model", function() {
+          var origVal = model.get("a");
+          setProxyModelValueAndWait("a", "a new value", function() {
+            expect(proxyModel.copyAttrsToModel).not.toHaveBeenCalled();
+            expect(model.get("a")).not.toBe("a new value");
+            expect(model.get("a")).toBe(origVal);
+          });
+        });
+
+      });
+
+    });
+
     describe("destruction", function() {
 
       it("cleans up its references", function() {
