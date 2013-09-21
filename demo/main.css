@@ -132,6 +132,14 @@ i[class*="icon-"] {
   display: inline-block;
 }
 
+.contact .btn-danger {
+  float: right;
+}
+
+.contact:only-of-type .btn-danger {
+  display: none;
+}
+
 .contact i {
   margin-right: .5em;
 }

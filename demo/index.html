@@ -19,17 +19,21 @@
   <template id="contact-item-template">
     <p class="contact-name" data-rv-text=":fullName < .firstName .lastName"></p>
     <i data-rv-class-active=".isFavorite" class="icon-favorite">&#9733;</i>
-    <button class="btn btn-sm btn-danger">Delete</button>
+    <button class="btn btn-sm btn-danger" title="Delete contact">&times;</button>
   </template>
 
   <template id="contact-manager-template">
-    <input type="text" class="contact-name" data-rv-value=".firstName" placeholder="First name" />
-    <input type="text" class="contact-name" data-rv-value=".lastName" placeholder="Last name" />
-    <button class="btn favorite-btn">
-      <i data-rv-class-active=".isFavorite" class="icon-favorite active">&#9733;</i>
-      Favorite
-    </button>
-    <button class="btn btn-danger">Delete</button>
+    <p>
+      <input type="text" class="contact-name" data-rv-value=".firstName" placeholder="First name" />
+      <input type="text" class="contact-name" data-rv-value=".lastName" placeholder="Last name" />
+    </p>
+    <p>
+      <button class="btn favorite-btn">
+        <i data-rv-class-active=".isFavorite" class="icon-favorite active">&#9733;</i>
+        Favorite
+      </button>
+      <button class="btn btn-danger">Delete</button>
+    </p>
   </template>
 
   <script src="../vendor/jquery.js"></script>
