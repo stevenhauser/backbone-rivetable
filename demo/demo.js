@@ -1,21 +1,22 @@
 (function($, Backbone, _) {
 
-  /* Helpers ---------------------------------------- */
-
-  function getTemplate(selector) {
-    return $(selector)[0].content.cloneNode(true);
-  }
-
-
-
   /* Backbone.View overrides ---------------------------------------- */
+  // Override some Backbone methods to provide basic functionality
+  // for the demo. Something like Marionette provides a lot of this
+  // for you and doesn't extend the base view.
 
   _.extend(Backbone.View.prototype, {
 
     getTemplate: function() {
-      return getTemplate(this.template);
+      return $(this.template)[0].content.cloneNode(true);
     },
 
+    // Because of Rivets' data binding, we just get the template
+    // which for this demo is an actual HTML node without any
+    // sort of interpolation, add a couple of useful data attributes
+    // for use later, and then call `rivetable`. We don't need to
+    // call `render` again unless we do something like change the
+    // view's model, which is illustrated below.
     render: function() {
       this.$el
         .html(this.getTemplate())
@@ -26,15 +27,12 @@
     },
 
     remove: (function() {
-
       var origRemove = Backbone.View.prototype.remove;
-
       return function() {
         // @TODO: This probably makes sense to call in rivetable itself.
         this.unrivetable();
         return origRemove.apply(this, arguments);
       };
-
     }())
 
   });
@@ -42,12 +40,15 @@
 
 
   /* App vent ---------------------------------------- */
+  // Create a vent to facilitate communication across modules.
 
   var vent = _.extend({}, Backbone.Events);
 
 
 
   /* Contact model ---------------------------------------- */
+  // This is the base model, intentionally dead simple because
+  // the proxy model will handle a lot of the complexity.
 
   var ContactModel = Backbone.Model.extend({
 
@@ -62,6 +63,7 @@
 
 
   /* Contacts collection ---------------------------------------- */
+  // The collection that's used for the contacts list.
 
   var ContactsCollection = Backbone.Collection.extend({
 
@@ -73,6 +75,10 @@
 
   /* Contact view ---------------------------------------- */
 
+  // An extended `RivetableProxyModel` to provide some functionality
+  // that's not available on the actual model. Something like `fullName`
+  // would probably make sense to actually have on the model itself,
+  // but for the sake of illustrative purposes, it's defined here.
   var ContactViewProxy = Backbone.RivetableProxyModel.extend({
 
     fullName: function() {
@@ -83,6 +89,10 @@
 
   });
 
+  // The view that defines list items in the contacts list. Again, pretty
+  // basic Backbone stuff. Do note that the `ContactViewProxy` defined
+  // above is specified as `rivetableModel` here so that our template
+  // has access to the `fullName` method via `:fullName`.
   var ContactView = Backbone.RivetableView.extend({
 
     tagName: "li",
@@ -109,6 +119,8 @@
 
 
   /* Contacts manager view ---------------------------------------- */
+  // The view that wraps around the contacts list, mostly for the
+  // purposes of the add button.
 
   var ContactsManagerView = Backbone.View.extend({
 
@@ -128,6 +140,10 @@
 
 
   /* Contacts manager list view ---------------------------------------- */
+  // The main view that lists all of the contacts. A lot of the functionality
+  // here is pretty boilerplate and would be handled by something like
+  // Marionette's CollectionView, or if not using Marionette, just some sort
+  // of abstraction to add/remove child views.
 
   var ContactsManagerListView = Backbone.View.extend({
 
@@ -205,6 +221,11 @@
 
 
   /* Contact manager view ---------------------------------------- */
+  // The view that allows a contact to be edited. Because `RivetableProxyModel`
+  // is `bidirectional` by default, any changes to the proxy model via
+  // the form elements will result in changing the underlying, real model,
+  // thereby updating the corresponding list item since they share the
+  // same model (but have different proxy models).
 
   var ContactManagerView = Backbone.RivetableView.extend({
 
@@ -231,6 +252,10 @@
       return this;
     },
 
+    // Normally we'd probably throw the view away and create a new one,
+    // but for illustration purposes we can also change the model. Because
+    // the `render` method calls `rivetable`, a new proxy model will be
+    // created and everything should be hooked up correctly.
     changeModel: function(contact) {
       this.model = contact;
       this.render();
@@ -238,12 +263,15 @@
     },
 
     render: function() {
-      var isDefaultName = this.model.get("firstName") === this.model.defaults.firstName;
       Backbone.RivetableView.prototype.render.apply(this, arguments);
+      var isDefaultName = this.model.get("firstName") === this.model.defaults.firstName;
       this.focusFirstField(isDefaultName);
       return this;
     },
 
+    // We could use a checkbox and another rivets binding in the template
+    // to negate the need for this function and the handler that calls it,
+    // but this just demonstrates that everything still works as expected.
     toggleFavorite: function() {
       this.model.set("isFavorite", !this.model.get("isFavorite"));
       return this;
@@ -266,6 +294,7 @@
 
 
   /* Initialization ---------------------------------------- */
+  // Some simple initialization to create the views and kick off the app.
 
   var sampleData = [
         { firstName: "Homer",  lastName: "Simpson", isFavorite: true },
@@ -281,5 +310,6 @@
 
   window.collection = collection;
   window.contactsListView = contactsListView;
+  window.contactManagerView = contactManagerView;
 
 }(jQuery, Backbone, _));
