@@ -225,9 +225,22 @@
       return this;
     },
 
+    focusFirstField: function(select) {
+      var method = select ? "select" : "focus";
+      this.$("input:first")[method]();
+      return this;
+    },
+
     changeModel: function(contact) {
       this.model = contact;
       this.render();
+      return this;
+    },
+
+    render: function() {
+      var isDefaultName = this.model.get("firstName") === this.model.defaults.firstName;
+      Backbone.RivetableView.prototype.render.apply(this, arguments);
+      this.focusFirstField(isDefaultName);
       return this;
     },
 
