@@ -23,7 +23,7 @@ If you change your view's `model`, you'll need to recall `rivetable`.
 ```js
 Backbone.View.extend({
   initialize: function() {
-    this.rivetable();
+    this.render().rivetable();
   }
 });
 ```
@@ -34,11 +34,28 @@ calling `this.rivetable`:
 ```js
 Backbone.RivetableView.extend({
   initialize: function() {
+    this.render();
     // No need to call `rivetable` here because it'll be called
     // in `RivetableView`'s constructor.
   }
 });
 ```
+
+### Rendering
+
+Because backbone.rivetable uses Rivets.js behind the scenes, the view should be
+rendered before calling `rivetable` so that the template is rendered within
+`this.el`. If the template isn't within `this.el` by the time `rivetable` is
+called, Rivets won't know what data attributes it needs to bind to.
+
+Because of this you should always call `rivetable` after rendering. The calls
+to `render` and `rivetable` should only be needed once (unless you change your
+view's model) and then backbone.rivetable should handle the rest from there.
+If using `RivetableView`, you should call `render` in your view's `initialize`
+method since `RivetableView`'s constuctor calls `rivetable` after `initialize`.
+If using rivetable as a mixin, just call it at some point after rendering.
+Multiple calls to `rivetable` do clean up existing listeners and references,
+so it's not problematic to call it more than once, though it shouldn't be needed.
 
 ### Customizing the proxy model
 
